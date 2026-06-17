@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "exclude": ["node_modules", "dist", "prisma", "test"],
+  "watchOptions": {
+    "watchFile": "fixedPollingInterval"
+  }
+}

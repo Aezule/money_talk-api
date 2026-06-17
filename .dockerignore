@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log*
+dist
+.vscode
+.DS_Store
+prisma/data/*.sqlite
+/prisma/data/money-talks.sqlite
+.env
+prisma

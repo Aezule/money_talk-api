@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Utilisateur {
+  id                     String   @id @map("id_utilisateur")
+  userId                 String   @unique @map("user_id")
+  email                  String   @unique
+  password               String
+  firstName              String?  @map("prenom")
+  lastName               String?  @map("nom")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+  resetTokenHash         String?  @map("reset_token_hash")
+  resetTokenExpiresAt    DateTime? @map("reset_token_expires_at")
+
+  refreshTokens          RefreshToken[]
+  transactions           Transaction[]
+  categories             Category[]
+  budgets                Budget[]
+  recurringTransactions  RecurringTransaction[]
+  notifications          Notification[]
+
+  @@map("utilisateur")
+}
+
+model Transaction {
+  id                      String    @id @default(uuid())
+  userId                  String    @map("user_id")
+  categoryId              String?   @map("category_id")
+  amount                  Int       // centimes
+  type                    String    // expense | income
+  date                    DateTime  @map("date")
+  description             String?
+  notes                   String?
+  recurringTransactionId  String?   @map("recurring_transaction_id")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  user                    Utilisateur           @relation(fields: [userId], references: [id])
+  category                Category?             @relation(fields: [categoryId], references: [id])
+  recurringTransaction    RecurringTransaction? @relation(fields: [recurringTransactionId], references: [id])
+  attachments             Attachment[]
+
+  @@index([userId])
+  @@index([categoryId])
+  @@map("transactions")
+}
+
+model RefreshToken {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  revoked    Boolean  @default(false)
+
+  user       Utilisateur @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+enum CategoryType {
+  expense
+  income
+}
+
+model Category {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  name            String
+  color           String?  @map("color")
+  icon            String?  @map("icon")
+  parentCategoryId String? @map("parent_category_id")
+  type            CategoryType @default(expense) @map("type")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user             Utilisateur @relation(fields: [userId], references: [id])
+  parentCategory   Category?    @relation("ParentChild", fields: [parentCategoryId], references: [id])
+  childCategories  Category[]   @relation("ParentChild")
+  transactions     Transaction[]
+  budgets          Budget[]
+  recurringTransactions RecurringTransaction[]
+
+  @@index([userId])
+  @@map("categories")
+}
+
+model Budget {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  categoryId     String   @map("category_id")
+  amount         Int      // centimes
+  period         String   // monthly | weekly | yearly
+  startDate      DateTime? @map("start_date")
+  endDate        DateTime? @map("end_date")
+  alertThreshold Int?      @map("alert_threshold")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user        Utilisateur @relation(fields: [userId], references: [id])
+  category    Category    @relation(fields: [categoryId], references: [id])
+
+  @@index([userId])
+  @@index([categoryId])
+  @@map("budgets")
+}
+
+model RecurringTransaction {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  categoryId     String   @map("category_id")
+  amount         Int      // centimes
+  type           String   // expense | income
+  description    String?
+  frequency      String   // daily | weekly | monthly | yearly
+  startDate      DateTime  @map("start_date")
+  endDate        DateTime? @map("end_date")
+  nextOccurrence DateTime? @map("next_occurrence")
+  isActive       Boolean   @default(true) @map("is_active")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user         Utilisateur @relation(fields: [userId], references: [id])
+  category     Category    @relation(fields: [categoryId], references: [id])
+  transactions Transaction[]
+
+  @@index([userId])
+  @@index([categoryId])
+  @@map("recurring_transactions")
+}
+
+model Attachment {
+  id            String    @id @default(uuid())
+  transactionId String    @map("transaction_id")
+  fileName      String    @map("file_name")
+  fileUrl       String    @map("file_url")
+  fileType      String    @map("file_type")
+  fileSize      Int       @map("file_size")
+  uploadedAt    DateTime  @default(now()) @map("uploaded_at")
+
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+
+  @@index([transactionId])
+  @@map("attachments")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  type        String
+  payload     Json?
+  delivered   Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  deliveredAt DateTime? @map("delivered_at")
+
+  user        Utilisateur @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("notifications")
+}
