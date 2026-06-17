@@ -107,8 +107,8 @@ export class AuthService {
 
     const tokenHash = this.hashToken(token);
     const user: any = await this.prisma.utilisateur.findFirst({
-      where: ({ resetTokenHash: tokenHash } as any),
-      select: ({ id: true, resetTokenExpiresAt: true } as any),
+      where: { resetTokenHash: tokenHash } as any,
+      select: { id: true, resetTokenExpiresAt: true } as any,
     });
 
     if (!user?.resetTokenExpiresAt || user.resetTokenExpiresAt < new Date()) {
@@ -118,7 +118,11 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await this.prisma.utilisateur.update({
       where: { id: user.id },
-      data: { password: passwordHash, resetTokenHash: null, resetTokenExpiresAt: null } as any,
+      data: {
+        password: passwordHash,
+        resetTokenHash: null,
+        resetTokenExpiresAt: null,
+      } as any,
     });
   }
 

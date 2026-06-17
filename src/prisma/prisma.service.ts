@@ -117,7 +117,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     }
     return this.db.collection(name);
   }
-  
+
   private isObjectFilter(v: any): boolean {
     return !!v && typeof v === 'object' && !(v instanceof Date);
   }
@@ -129,7 +129,6 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     if ('in' in value) out.$in = value.in;
     return out;
   }
-
 
   private mapWhere(where?: Record<string, any>): Filter<Document> {
     if (!where) return {};
@@ -156,7 +155,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     if (!select) return plain;
     const result: Record<string, any> = {};
     for (const [field, enabled] of Object.entries(select)) {
-      if (enabled) result[field] = (plain)[field];
+      if (enabled) result[field] = plain[field];
     }
     return result;
   }
@@ -200,7 +199,9 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   private async updateOne(collectionName: string, args: any) {
     const where = this.mapWhere(args?.where);
     const raw = { ...args?.data, updatedAt: new Date() };
-    const data = Object.fromEntries(Object.entries(raw).filter(([, v]) => v !== undefined));
+    const data = Object.fromEntries(
+      Object.entries(raw).filter(([, v]) => v !== undefined),
+    );
     await this.collection(collectionName).updateOne(where, { $set: data });
     const doc = await this.collection(collectionName).findOne(where);
     return this.selectFields(doc as any, args?.select);
@@ -229,7 +230,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     cursor = this.applyOrder(cursor, args?.orderBy);
     const transactions = (await cursor.toArray()).map((doc) =>
       this.selectFields(doc as any),
-    ) ;
+    );
 
     if (!args?.include?.category && !args?.include?.attachments) {
       return transactions;
@@ -241,14 +242,14 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     const txIds = transactions.map((t) => t.id);
 
     const categories = args?.include?.category
-      ? ((await this.collection('categories')
+      ? await this.collection('categories')
           .find({ id: { $in: categoryIds } })
-          .toArray()))
+          .toArray()
       : [];
     const attachments = args?.include?.attachments
-      ? ((await this.collection('attachments')
+      ? await this.collection('attachments')
           .find({ transactionId: { $in: txIds } })
-          .toArray()))
+          .toArray()
       : [];
 
     const categoriesById = new Map(categories.map((c) => [c.id, c]));
@@ -262,10 +263,10 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return transactions.map((tx) => ({
       ...tx,
       category: args?.include?.category
-        ? categoriesById.get(tx.categoryId) ?? null
+        ? (categoriesById.get(tx.categoryId) ?? null)
         : undefined,
       attachments: args?.include?.attachments
-        ? attachmentsByTx.get(tx.id) ?? []
+        ? (attachmentsByTx.get(tx.id) ?? [])
         : undefined,
     }));
   }
@@ -276,20 +277,32 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
       { $match: where },
       { $group: { _id: null, sumAmount: { $sum: '$amount' } } },
     ];
-    const res = await this.collection('transactions').aggregate(pipeline).toArray();
+    const res = await this.collection('transactions')
+      .aggregate(pipeline)
+      .toArray();
     return { _sum: { amount: res[0]?.sumAmount ?? 0 } };
   }
 
   private async ensureIndexes() {
-    await this.collection('utilisateur').createIndex({ email: 1 }, { unique: true });
+    await this.collection('utilisateur').createIndex(
+      { email: 1 },
+      { unique: true },
+    );
     await this.collection('refresh_tokens').createIndex(
       { tokenHash: 1 },
       { unique: true },
     );
     await this.collection('transactions').createIndex({ userId: 1, date: -1 });
     await this.collection('budgets').createIndex({ userId: 1, categoryId: 1 });
-    await this.collection('categories').createIndex({ userId: 1, name: 1, type: 1 });
-    await this.collection('notifications').createIndex({ userId: 1, delivered: 1 });
+    await this.collection('categories').createIndex({
+      userId: 1,
+      name: 1,
+      type: 1,
+    });
+    await this.collection('notifications').createIndex({
+      userId: 1,
+      delivered: 1,
+    });
     await this.collection('forecast_lines').createIndex({ userId: 1, type: 1 });
   }
 }

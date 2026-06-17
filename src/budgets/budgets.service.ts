@@ -25,19 +25,25 @@ export class BudgetsService {
     if (!data?.categoryId) {
       throw new BadRequestException('categoryId is required');
     }
-    const category = await this.prisma.category.findUnique({ where: { id: data.categoryId } });
+    const category = await this.prisma.category.findUnique({
+      where: { id: data.categoryId },
+    });
     if (!category) {
       throw new BadRequestException('Category not found');
     }
     if (category.userId !== userId) {
-      throw new UnauthorizedException('Category does not belong to authenticated user');
+      throw new UnauthorizedException(
+        'Category does not belong to authenticated user',
+      );
     }
 
     const parseDate = (val: any, fieldName: string) => {
       if (val === undefined || val === null) return undefined;
       const d = val instanceof Date ? val : new Date(String(val));
       if (Number.isNaN(d.getTime())) {
-        throw new BadRequestException(`${fieldName} must be a valid ISO-8601 date or datetime`);
+        throw new BadRequestException(
+          `${fieldName} must be a valid ISO-8601 date or datetime`,
+        );
       }
       return d;
     };
@@ -49,7 +55,6 @@ export class BudgetsService {
     if (!Number.isFinite(amount) || !Number.isInteger(amount)) {
       throw new BadRequestException('amount must be an integer');
     }
-
 
     const payload: any = {
       categoryId: data.categoryId,
@@ -63,7 +68,8 @@ export class BudgetsService {
 
     try {
       const newBudget = await budgetClient.create({ data: payload });
-      if (!newBudget) throw new BadRequestException('Budget could not be created');
+      if (!newBudget)
+        throw new BadRequestException('Budget could not be created');
       return newBudget;
     } catch (err: any) {
       throw new BadRequestException(err?.message ?? 'Budget creation failed');
@@ -77,7 +83,9 @@ export class BudgetsService {
       throw new BadRequestException('Budget not found');
     }
     if (budget.userId !== userId) {
-      throw new UnauthorizedException('Budget does not belong to authenticated user');
+      throw new UnauthorizedException(
+        'Budget does not belong to authenticated user',
+      );
     }
     await budgetClient.delete({ where: { id: budgetId } });
   }
@@ -89,7 +97,9 @@ export class BudgetsService {
       throw new BadRequestException('Budget not found');
     }
     if (budget.userId !== userId) {
-      throw new UnauthorizedException('Budget does not belong to authenticated user');
+      throw new UnauthorizedException(
+        'Budget does not belong to authenticated user',
+      );
     }
 
     const payload = { ...data };
@@ -113,11 +123,15 @@ export class BudgetsService {
     }
 
     if (payload.startDate !== undefined) {
-      updateData.startDate = payload.startDate ? new Date(String(payload.startDate)) : null;
+      updateData.startDate = payload.startDate
+        ? new Date(String(payload.startDate))
+        : null;
     }
 
     if (payload.endDate !== undefined) {
-      updateData.endDate = payload.endDate ? new Date(String(payload.endDate)) : null;
+      updateData.endDate = payload.endDate
+        ? new Date(String(payload.endDate))
+        : null;
     }
 
     if (payload.alertThreshold !== undefined) {
@@ -129,7 +143,8 @@ export class BudgetsService {
         where: { id: budgetId },
         data: updateData,
       });
-      if (!updated) throw new BadRequestException('Budget could not be updated');
+      if (!updated)
+        throw new BadRequestException('Budget could not be updated');
       return updated;
     } catch (err: any) {
       throw new BadRequestException(err?.message ?? 'Budget update failed');

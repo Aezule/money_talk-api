@@ -1,10 +1,17 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { NotificationService } from '../notifications/notification.service.js';
 
 @Injectable()
 export class TransactionService {
-  constructor(private readonly prisma: PrismaService, private readonly notificationService: NotificationService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   async findAll(userId?: string) {
     const where = userId ? { userId } : {};
@@ -34,14 +41,20 @@ export class TransactionService {
     };
 
     if (payload.date !== undefined && payload.date !== null) {
-      const parsedDate = payload.date instanceof Date ? payload.date : new Date(String(payload.date));
+      const parsedDate =
+        payload.date instanceof Date
+          ? payload.date
+          : new Date(String(payload.date));
       if (Number.isNaN(parsedDate.getTime())) {
         throw new BadRequestException('date must be a valid ISO-8601 date');
       }
       payload.date = parsedDate;
     }
 
-    if (typeof payload.categoryId !== 'string' || payload.categoryId.trim() === '') {
+    if (
+      typeof payload.categoryId !== 'string' ||
+      payload.categoryId.trim() === ''
+    ) {
       delete payload.categoryId;
     } else {
       const category = await this.prisma.category.findUnique({
@@ -56,7 +69,10 @@ export class TransactionService {
 
     try {
       if (newTransaction?.categoryId) {
-        await this.notificationService.checkBudgetForCategory(userId, newTransaction.categoryId);
+        await this.notificationService.checkBudgetForCategory(
+          userId,
+          newTransaction.categoryId,
+        );
       }
     } catch (err) {
       console.error('Budget check/notification failed', err);
@@ -66,14 +82,19 @@ export class TransactionService {
 
   async updateTransaction(userId: string, transactionId: string, data: any) {
     const txClient = (this.prisma as any).transaction;
-    const existing = await txClient.findUnique({ where: { id: transactionId } });
+    const existing = await txClient.findUnique({
+      where: { id: transactionId },
+    });
     if (!existing || existing.userId !== userId) {
       throw new NotFoundException('Transaction not found');
     }
 
     const payload = { ...data };
     if (payload.date !== undefined && payload.date !== null) {
-      const parsedDate = payload.date instanceof Date ? payload.date : new Date(String(payload.date));
+      const parsedDate =
+        payload.date instanceof Date
+          ? payload.date
+          : new Date(String(payload.date));
       if (Number.isNaN(parsedDate.getTime())) {
         throw new BadRequestException('date must be a valid ISO-8601 date');
       }
@@ -81,10 +102,15 @@ export class TransactionService {
     }
 
     if (payload.categoryId !== undefined) {
-      if (typeof payload.categoryId !== 'string' || payload.categoryId.trim() === '') {
+      if (
+        typeof payload.categoryId !== 'string' ||
+        payload.categoryId.trim() === ''
+      ) {
         delete payload.categoryId;
       } else {
-        const category = await this.prisma.category.findUnique({ where: { id: payload.categoryId } });
+        const category = await this.prisma.category.findUnique({
+          where: { id: payload.categoryId },
+        });
         if (category?.userId !== userId) {
           delete payload.categoryId;
         }
@@ -96,7 +122,9 @@ export class TransactionService {
 
   async deleteTransaction(userId: string, transactionId: string) {
     const txClient = (this.prisma as any).transaction;
-    const existing = await txClient.findUnique({ where: { id: transactionId } });
+    const existing = await txClient.findUnique({
+      where: { id: transactionId },
+    });
     if (!existing || existing.userId !== userId) {
       throw new NotFoundException('Transaction not found');
     }

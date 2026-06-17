@@ -12,7 +12,10 @@ import {
   Param,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { CreateTransactionDto, UpdateTransactionDto } from '../dtos/transaction.dto.js';
+import {
+  CreateTransactionDto,
+  UpdateTransactionDto,
+} from '../dtos/transaction.dto.js';
 
 import { TransactionService } from './transaction.service.js';
 import {
@@ -67,9 +70,12 @@ export class TransactionController {
   async getRecurring(@Req() req: Request) {
     const authUserId = (req as any).user?.sub as string | undefined;
     if (!authUserId) {
-      throw new UnauthorizedException('Authenticated user id not found in token');
+      throw new UnauthorizedException(
+        'Authenticated user id not found in token',
+      );
     }
-    const transactions = await this.transactionService.findRecurring(authUserId);
+    const transactions =
+      await this.transactionService.findRecurring(authUserId);
     return { transactions };
   }
 
@@ -118,9 +124,15 @@ export class TransactionController {
   ) {
     const authUserId = (req as any).user?.sub as string | undefined;
     if (!authUserId) {
-      throw new UnauthorizedException('Authenticated user id not found in token');
+      throw new UnauthorizedException(
+        'Authenticated user id not found in token',
+      );
     }
-    const updated = await this.transactionService.updateTransaction(authUserId, id, body);
+    const updated = await this.transactionService.updateTransaction(
+      authUserId,
+      id,
+      body,
+    );
     return { message: 'Transaction updated', transaction: updated };
   }
 
@@ -130,13 +142,12 @@ export class TransactionController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a transaction' })
   @ApiResponse({ status: 200, description: 'Transaction deleted' })
-  async deleteTransaction(
-    @Param('id') id: string,
-    @Req() req: Request,
-  ) {
+  async deleteTransaction(@Param('id') id: string, @Req() req: Request) {
     const authUserId = (req as any).user?.sub as string | undefined;
     if (!authUserId) {
-      throw new UnauthorizedException('Authenticated user id not found in token');
+      throw new UnauthorizedException(
+        'Authenticated user id not found in token',
+      );
     }
     await this.transactionService.deleteTransaction(authUserId, id);
     return { message: 'Transaction deleted' };
