@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": false
+  },
+  "exclude": ["node_modules", "test", "dist", "prisma", "**/*spec.ts"]
+}
