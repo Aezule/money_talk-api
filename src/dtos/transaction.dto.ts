@@ -52,7 +52,11 @@ export class CreateTransactionDto {
   @IsString()
   notes?: string;
 
-  @ApiProperty({ example: false, description: 'Mark as recurring', required: false })
+  @ApiProperty({
+    example: false,
+    description: 'Mark as recurring',
+    required: false,
+  })
   @IsOptional()
   @IsBoolean()
   isRecurring?: boolean;

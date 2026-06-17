@@ -124,20 +124,26 @@ export class AuthController {
     });
   }
 
-
   @Post('forgot-password')
   @ApiOperation({ summary: 'Demander une réinitialisation de mot de passe' })
   @ApiResponse({ status: 200, description: 'Password reset requested' })
   @ApiBody({ schema: { properties: { email: { type: 'string' } } } })
   async forgotPassword(@Body('email') email: string) {
     await this.authService.forgetPassword(email);
-    return { message: 'Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.' };
+    return {
+      message:
+        'Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.',
+    };
   }
 
   @Post('reset-password')
   @ApiOperation({ summary: 'Réinitialiser le mot de passe' })
   @ApiResponse({ status: 200, description: 'Password reset successful' })
-  @ApiBody({ schema: { properties: { token: { type: 'string' }, password: { type: 'string' } } } })
+  @ApiBody({
+    schema: {
+      properties: { token: { type: 'string' }, password: { type: 'string' } },
+    },
+  })
   async resetPassword(@Body() body: { token: string; password: string }) {
     await this.authService.resetPassword(body.token, body.password);
     return { message: 'Réinitialisation du mot de passe réussie.' };

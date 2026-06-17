@@ -39,8 +39,11 @@ export class CreateCategoryDto {
   @IsString()
   parentCategoryId?: string;
 
-  @ApiProperty({ example: CategoryType.EXPENSE, enum: CategoryType, description: 'Category type' })
+  @ApiProperty({
+    example: CategoryType.EXPENSE,
+    enum: CategoryType,
+    description: 'Category type',
+  })
   @IsEnum(CategoryType)
   type: CategoryType;
 }
-
