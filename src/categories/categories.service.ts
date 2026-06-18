@@ -21,6 +21,7 @@ export class CategoriesService {
     const name = (data?.name ?? '').trim();
     if (!name) {
       throw new BadRequestException('Category name is required');
+      console.log('test')
     }
 
     const type = data?.type ?? 'expense';
