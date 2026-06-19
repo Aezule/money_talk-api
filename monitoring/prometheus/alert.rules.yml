@@ -1,0 +1,48 @@
+groups:
+  - name: money-talks-api
+    rules:
+      # L'API ne répond plus au scrape depuis 1 min.
+      - alert: ApiDown
+        expr: up{job="money-talks-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API Money Talks injoignable"
+          description: "La cible {{ $labels.instance }} ne répond plus depuis 1 minute."
+
+      # Taux d'erreurs serveur (5xx) supérieur à 5 % sur 5 min.
+      - alert: HighHttpErrorRate
+        expr: |
+          sum(rate(http_requests_total{status_code=~"5.."}[5m]))
+            / sum(rate(http_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taux d'erreurs HTTP 5xx élevé"
+          description: "Plus de 5 % des requêtes renvoient une erreur serveur (5 dernières minutes)."
+
+      # Latence p95 des requêtes au-dessus de 1 s sur 5 min.
+      - alert: HighRequestLatencyP95
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le)
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latence HTTP p95 élevée"
+          description: "Le p95 de latence dépasse 1 s sur les 5 dernières minutes."
+
+      # Saturation de l'event loop Node.js (signe de blocage CPU).
+      - alert: HighEventLoopLag
+        expr: nodejs_eventloop_lag_seconds{job="money-talks-api"} > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Event loop Node.js saturée"
+          description: "Le lag de l'event loop dépasse 100 ms sur {{ $labels.instance }}."

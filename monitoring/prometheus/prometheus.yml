@@ -1,0 +1,33 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: money-talks
+
+# Règles d'alerte évaluées par Prometheus.
+rule_files:
+  - /etc/prometheus/alert.rules.yml
+
+# Envoi des alertes déclenchées à Alertmanager.
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  # Prometheus se surveille lui-même.
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # API Money Talks, scrapée via le port 3000 publié sur l'hôte. Fonctionne
+  # dans les deux cas : `npm run start:dev` OU l'app conteneurisée (service `api`
+  # du docker-compose racine, qui publie aussi 3000). Pour scraper par nom de
+  # service plutôt que par l'hôte, rattacher cette stack au réseau
+  # `money-talks-net` et utiliser la cible "money-talks-api:3000".
+  - job_name: money-talks-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:3000"]
+        labels:
+          service: money-talks-api
