@@ -1,3 +1,4 @@
+// Test d'INTÉGRATION
 import { jest } from '@jest/globals';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -11,9 +12,9 @@ const TEST_USER = 'user-1';
 const OTHER_USER = 'user-2';
 
 /**
- * Minimal in-memory stand-in for PrismaService so the whole HTTP pipeline
- * (routing -> ValidationPipe -> guard -> controller -> service -> persistence)
- * can be exercised without a real MongoDB instance.
+ * Substitut minimal en mémoire de PrismaService : permet d'exercer toute la
+ * chaîne HTTP (routage -> ValidationPipe -> guard -> controller -> service ->
+ * persistance) sans avoir besoin d'une vraie instance MongoDB.
  */
 class InMemoryPrisma {
   budgets: any[] = [];
@@ -60,7 +61,7 @@ describe('Budgets (integration)', () => {
       controllers: [BudgetsController],
       providers: [BudgetsService, { provide: PrismaService, useValue: prisma }],
     })
-      // Replace the real JWT guard with one that injects an authenticated user.
+      // Remplace le vrai JwtAuthGuard par un guard qui injecte un utilisateur authentifié.
       .overrideGuard(JwtAuthGuard)
       .useValue({
         canActivate: (ctx: any) => {
