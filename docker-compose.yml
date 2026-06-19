@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # ========== Base de données MongoDB ==========
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: mongosh --eval "db.runCommand('ping').ok" --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - money-talks-net
+
+  # ========== Service d'emails (MailHog) ==========
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # Port SMTP pour l'envoi d'emails
+      - "8025:8025"   # Interface web pour visualiser les emails
+    networks:
+      - money-talks-net
+
+  # ========== API Backend (Money Talks) ==========
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: money-talks-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # Valeurs par défaut (écrasées par .env si présent)
+      # Configuration Node.js
+      NODE_ENV: production
+      PORT: 3000
+
+      # Configuration MongoDB
+      MONGODB_URI: mongodb://mongo:27017/moneytalks
+
+      # Configuration Email (MailHog)
+      EMAIL_HOST: mailhog
+      EMAIL_PORT: 1025
+      EMAIL_SECURE: "false"
+      EMAIL_FROM: noreply@moneytalks.com
+      EMAIL_RESET_PASSWORD_URL: "http://localhost:3000/reset-password"
+
+      # Configuration JWT (à changer en production !)
+      JWT_SECRET: change-me-in-production
+      JWT_EXPIRES_IN: "86400"
+      JWT_VERIFICATION_TOKEN_SECRET: change-me-verification-secret
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    networks:
+      - money-talks-net
+
+# ========== Réseaux et Volumes ==========
+networks:
+  money-talks-net:
+    driver: bridge
+
+volumes:
+  mongo_data:

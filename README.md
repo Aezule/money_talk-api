@@ -1,98 +1,117 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Guide d'Utilisation - Money Talks API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Contexte du Projet
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**Money Talks API** est une API RESTful développée avec **NestJS 11**, **TypeScript** et **MongoDB**, permettant de gérer des transactions financières, budgets, utilisateurs et notifications.
 
-## Description
+**Stack technique :**
+- Node.js 20.x (LTS)
+- NestJS 11.x
+- MongoDB 7.x (via driver natif)
+- MailHog (pour les tests d'emails)
+- Docker + Docker Compose
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Installation et Premier Lancement
 
-## Project setup
+### **Cloner le projet**
 
 ```bash
-$ npm install
+git clone git@github.com:Aezule/money_talk-api.git
 ```
 
-## Compile and run the project
+## Services Déployés
+
+| Service | URL | Port | Description |
+|---------|-----|------|-------------|
+| **API (Money Talks)** | `http://localhost:3000` | 3000 | Backend NestJS |
+| **MongoDB** | `mongodb://localhost:27017` | 27017 | Base de données |
+| **MailHog (Web UI)** | `http://localhost:8025` | 8025 | Interface pour voir les emails |
+
+## Commandes de Base
+
+### **Démarrer les services**
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker-compose up -d
 ```
+*Le flag `-d` lance les conteneurs en arrière-plan (mode detached).*
 
-## Run tests
+### **Arrêter les services**
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker-compose down
 ```
+*Arrête tous les conteneurs définis dans docker-compose.yml.*
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### **Redémarrer les services**
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker-compose restart
+```
+*Redémarre tous les conteneurs.*
+
+### **Nettoyer complètement**
+
+```bash
+docker-compose down -v
+```
+*Arrête ET supprime les volumes (attention : perte des données MongoDB).*
+
+### **Voir l'état des services**
+
+```bash
+docker-compose ps
+```
+*Affiche la liste des conteneurs avec leur statut (running/exited).*
+
+## Vérification du Fonctionnement
+
+### **Vérifier que l'API répond**
+
+```bash
+curl -I http://localhost:3000/api
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### **Vérifier MongoDB**
 
-## Resources
+```bash
+# Se connecter à MongoDB
+docker exec -it mongo mongosh mongo:27017/moneytalks
 
-Check out a few resources that may come in handy when working with NestJS:
+# Tester une commande simple
+> db.runCommand({ping: 1})
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### **Vérifier MailHog**
+Ouvre le navigateur à l'adresse : [http://localhost:8025](http://localhost:8025)
 
-## Support
+### **Voir les logs en temps réel**
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+# Tous les services
+docker-compose logs -f
 
-## Stay in touch
+# Juste l'API
+docker-compose logs -f api
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Juste MongoDB
+docker-compose logs -f mongo
+```
 
-## License
+## Commandes Utiles au Quotidien
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+| Action | Commande | Description |
+|--------|----------|-------------|
+| **Lister les conteneurs** | `docker ps -a` | Affiche tous les conteneurs (même arrêtés) |
+| **Entrer dans un conteneur** | `docker exec -it money-talks-api sh` | Ouvre un shell dans le conteneur API |
+| **Voir les images Docker** | `docker images` | Liste toutes les images locales |
+| **Supprimer une image** | `docker rmi money-talks-api` | Supprime l'image (si plus utilisée) |
+| **Voir l'espace disque** | `docker system df` | Affiche l'espace utilisé par Docker |
+| **Nettoyer Docker** | `docker system prune` | Supprime les images/containers inutilisés |
+
+## Accéder à l'Application
+
+| Service | URL |
+|---------|-----|
+| **API (Swagger)** | [http://localhost:3000/api](http://localhost:3000/api) |
+| **MailHog (Emails)** | [http://localhost:8025](http://localhost:8025) |
