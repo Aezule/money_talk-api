@@ -1,22 +1,23 @@
+// Test UNITAIRE
 import { jest } from '@jest/globals';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { BudgetsService } from './budgets.service.js';
 
 const createPrismaMock = () => ({
   budget: {
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    findMany: jest.fn<any>(),
+    findUnique: jest.fn<any>(),
+    create: jest.fn<any>(),
+    update: jest.fn<any>(),
+    delete: jest.fn<any>(),
   },
   category: {
-    findUnique: jest.fn(),
+    findUnique: jest.fn<any>(),
   },
 });
 
 describe('BudgetsService', () => {
-  let prisma: ReturnType<typeof createPrismaMock>;
+  let prisma: any;
   let service: BudgetsService;
 
   beforeEach(() => {
