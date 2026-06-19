@@ -1,3 +1,4 @@
+// Test UNITAIRE
 import { jest } from '@jest/globals';
 import {
   BadRequestException,
@@ -9,24 +10,24 @@ import { CategoriesService } from './categories.service.js';
 
 const createPrismaMock = () => ({
   category: {
-    findUnique: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    deleteMany: jest.fn(),
+    findUnique: jest.fn<any>(),
+    findMany: jest.fn<any>(),
+    create: jest.fn<any>(),
+    update: jest.fn<any>(),
+    delete: jest.fn<any>(),
+    deleteMany: jest.fn<any>(),
   },
   transaction: {
-    updateMany: jest.fn(),
+    updateMany: jest.fn<any>(),
   },
   budget: {
-    deleteMany: jest.fn(),
+    deleteMany: jest.fn<any>(),
   },
   $transaction: jest.fn((cb: any) => cb()),
 });
 
 describe('CategoriesService', () => {
-  let prisma: ReturnType<typeof createPrismaMock>;
+  let prisma: any;
   let service: CategoriesService;
 
   beforeEach(() => {

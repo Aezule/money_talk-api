@@ -1,29 +1,30 @@
+// Test UNITAIRE
 import { jest } from '@jest/globals';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { TransactionService } from './transaction.service.js';
 
 const createPrismaMock = () => ({
   transaction: {
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    findMany: jest.fn<any>(),
+    findUnique: jest.fn<any>(),
+    create: jest.fn<any>(),
+    update: jest.fn<any>(),
+    delete: jest.fn<any>(),
   },
   category: {
-    findUnique: jest.fn(),
+    findUnique: jest.fn<any>(),
   },
 });
 
 describe('TransactionService', () => {
-  let prisma: ReturnType<typeof createPrismaMock>;
+  let prisma: any;
   let notifications: { checkBudgetForCategory: jest.Mock };
   let service: TransactionService;
 
   beforeEach(() => {
     prisma = createPrismaMock();
     notifications = {
-      checkBudgetForCategory: jest.fn().mockResolvedValue(undefined),
+      checkBudgetForCategory: jest.fn<any>().mockResolvedValue(undefined),
     };
     service = new TransactionService(prisma as any, notifications as any);
   });

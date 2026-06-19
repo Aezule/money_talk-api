@@ -1,3 +1,4 @@
+// Test UNITAIRE
 import { jest } from '@jest/globals';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
@@ -5,30 +6,30 @@ import { AuthService } from './auth.service.js';
 
 const createPrismaMock = () => ({
   utilisateur: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
+    findUnique: jest.fn<any>(),
+    findFirst: jest.fn<any>(),
+    create: jest.fn<any>(),
+    update: jest.fn<any>(),
   },
   refreshToken: {
-    findUnique: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
+    findUnique: jest.fn<any>(),
+    create: jest.fn<any>(),
+    update: jest.fn<any>(),
   },
 });
 
 describe('AuthService', () => {
-  let prisma: ReturnType<typeof createPrismaMock>;
+  let prisma: any;
   let jwt: { sign: jest.Mock; verify: jest.Mock };
-  let email: { sendResetPasswordLink: jest.Mock };
+  let email: any;
   let config: { get: jest.Mock };
   let service: AuthService;
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    jwt = { sign: jest.fn().mockReturnValue('signed.jwt.token'), verify: jest.fn() };
-    email = { sendResetPasswordLink: jest.fn() };
-    config = { get: jest.fn().mockReturnValue('secret') };
+    jwt = { sign: jest.fn<any>().mockReturnValue('signed.jwt.token'), verify: jest.fn<any>() };
+    email = { sendResetPasswordLink: jest.fn<any>() };
+    config = { get: jest.fn<any>().mockReturnValue('secret') };
     service = new AuthService(
       prisma as any,
       jwt as any,
