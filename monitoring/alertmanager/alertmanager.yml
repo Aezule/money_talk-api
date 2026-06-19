@@ -1,0 +1,27 @@
+# Configuration minimale d'Alertmanager.
+# Par défaut les alertes sont regroupées et conservées dans l'UI (http://localhost:9093).
+# Pour notifier réellement (Slack, e-mail, webhook), renseigner un receiver ci-dessous
+# puis le référencer dans `route.receiver`.
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: default
+  group_by: ["alertname", "service"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+receivers:
+  - name: default
+    # Exemple de notification Slack (à activer en fournissant l'URL du webhook) :
+    # slack_configs:
+    #   - api_url: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+    #     channel: "#alerts-money-talks"
+    #     send_resolved: true
+
+inhibit_rules:
+  # Une alerte critique masque les alertes warning du même service.
+  - source_matchers: ["severity = critical"]
+    target_matchers: ["severity = warning"]
+    equal: ["service"]

@@ -1,0 +1,34 @@
+# Promtail collecte les logs des conteneurs Docker et les pousse vers Loki.
+# Quand l'API sera conteneurisée (lot Alex), ses logs JSON pino remonteront
+# automatiquement et seront requêtables dans Grafana via la source Loki.
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      # Nom du conteneur -> label `container`.
+      - source_labels: ["__meta_docker_container_name"]
+        regex: "/(.*)"
+        target_label: container
+      # Service docker-compose -> label `compose_service` (utilisé par le dashboard).
+      - source_labels: ["__meta_docker_container_label_com_docker_compose_service"]
+        target_label: compose_service
+    pipeline_stages:
+      # Les logs pino sont en JSON : on extrait le niveau pour pouvoir filtrer dessus.
+      - json:
+          expressions:
+            level: level
+            msg: msg
+      - labels:
+          level:
