@@ -1,0 +1,4 @@
+echo "🔒 [pre-push] Audit sécurité des dépendances de production…"
+# Garde-fou : bloque le push si une vulnérabilité CRITIQUE est présente en prod.
+# (les high/moderate sont rapportées en CI, voir .github/workflows/security.yml)
+npm audit --omit=dev --audit-level=critical
