@@ -48,3 +48,10 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # Étage Sécurité (lot Léo) : npm audit + gitleaks + Trivy image.
+  # Logique définie dans le workflow réutilisable .github/workflows/security.yml.
+  security:
+    name: Sécurité
+    uses: ./.github/workflows/security.yml
+    secrets: inherit
