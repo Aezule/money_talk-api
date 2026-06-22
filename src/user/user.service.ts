@@ -26,6 +26,7 @@ export class UserService {
     if (!user) return null;
 
     const { password, ...safeUser } = user;
+    void password; // Explicitly ignore - used for destructuring to remove password
     return safeUser;
   }
 
@@ -52,6 +53,7 @@ export class UserService {
     });
     if (!user) throw new BadRequestException('User not found');
     const { password, ...safeUser } = user;
+    void password; // Explicitly ignore - used for destructuring to remove password
     return safeUser;
   }
 
