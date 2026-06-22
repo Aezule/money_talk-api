@@ -1,5 +1,4 @@
 // Test d'INTÉGRATION
-import { jest } from '@jest/globals';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
@@ -22,29 +21,31 @@ class InMemoryPrisma {
   private seq = 0;
 
   budget = {
-    findMany: async ({ where }: any) =>
-      this.budgets.filter((b) => !where?.userId || b.userId === where.userId),
-    findUnique: async ({ where }: any) =>
-      this.budgets.find((b) => b.id === where.id) ?? null,
-    create: async ({ data }: any) => {
+    findMany: ({ where }: any) =>
+      Promise.resolve(
+        this.budgets.filter((b) => !where?.userId || b.userId === where.userId),
+      ),
+    findUnique: ({ where }: any) =>
+      Promise.resolve(this.budgets.find((b) => b.id === where.id) ?? null),
+    create: ({ data }: any) => {
       const row = { id: `b-${++this.seq}`, createdAt: new Date(), ...data };
       this.budgets.push(row);
-      return row;
+      return Promise.resolve(row);
     },
-    update: async ({ where, data }: any) => {
+    update: ({ where, data }: any) => {
       const row = this.budgets.find((b) => b.id === where.id);
       Object.assign(row, data);
-      return row;
+      return Promise.resolve(row);
     },
-    delete: async ({ where }: any) => {
+    delete: ({ where }: any) => {
       const idx = this.budgets.findIndex((b) => b.id === where.id);
-      return this.budgets.splice(idx, 1)[0];
+      return Promise.resolve(this.budgets.splice(idx, 1)[0]);
     },
   };
 
   category = {
-    findUnique: async ({ where }: any) =>
-      this.categories.find((c) => c.id === where.id) ?? null,
+    findUnique: ({ where }: any) =>
+      Promise.resolve(this.categories.find((c) => c.id === where.id) ?? null),
   };
 }
 

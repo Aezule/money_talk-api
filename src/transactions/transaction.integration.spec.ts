@@ -23,34 +23,36 @@ class InMemoryPrisma {
   private seq = 0;
 
   transaction = {
-    findMany: async ({ where }: any) =>
-      this.transactions.filter(
-        (t) =>
-          (!where?.userId || t.userId === where.userId) &&
-          (where?.isRecurring === undefined ||
-            t.isRecurring === where.isRecurring),
+    findMany: ({ where }: any) =>
+      Promise.resolve(
+        this.transactions.filter(
+          (t) =>
+            (!where?.userId || t.userId === where.userId) &&
+            (where?.isRecurring === undefined ||
+              t.isRecurring === where.isRecurring),
+        ),
       ),
-    findUnique: async ({ where }: any) =>
-      this.transactions.find((t) => t.id === where.id) ?? null,
-    create: async ({ data }: any) => {
+    findUnique: ({ where }: any) =>
+      Promise.resolve(this.transactions.find((t) => t.id === where.id) ?? null),
+    create: ({ data }: any) => {
       const row = { id: `t-${++this.seq}`, createdAt: new Date(), ...data };
       this.transactions.push(row);
-      return row;
+      return Promise.resolve(row);
     },
-    update: async ({ where, data }: any) => {
+    update: ({ where, data }: any) => {
       const row = this.transactions.find((t) => t.id === where.id);
       Object.assign(row, data);
-      return row;
+      return Promise.resolve(row);
     },
-    delete: async ({ where }: any) => {
+    delete: ({ where }: any) => {
       const idx = this.transactions.findIndex((t) => t.id === where.id);
-      return this.transactions.splice(idx, 1)[0];
+      return Promise.resolve(this.transactions.splice(idx, 1)[0]);
     },
   };
 
   category = {
-    findUnique: async ({ where }: any) =>
-      this.categories.find((c) => c.id === where.id) ?? null,
+    findUnique: ({ where }: any) =>
+      Promise.resolve(this.categories.find((c) => c.id === where.id) ?? null),
   };
 }
 

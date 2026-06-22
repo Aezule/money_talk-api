@@ -1,5 +1,4 @@
 // Test d'INTÉGRATION HTTP
-import { jest } from '@jest/globals';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
@@ -23,50 +22,54 @@ class InMemoryPrisma {
   private seq = 0;
 
   category = {
-    findMany: async ({ where }: any) =>
-      this.categories.filter(
-        (c) =>
-          (!where?.userId || c.userId === where.userId) &&
-          (where?.type === undefined || (c.type ?? 'expense') === where.type),
+    findMany: ({ where }: any) =>
+      Promise.resolve(
+        this.categories.filter(
+          (c) =>
+            (!where?.userId || c.userId === where.userId) &&
+            (where?.type === undefined || (c.type ?? 'expense') === where.type),
+        ),
       ),
-    findUnique: async ({ where }: any) =>
-      this.categories.find((c) => c.id === where.id) ?? null,
-    create: async ({ data }: any) => {
+    findUnique: ({ where }: any) =>
+      Promise.resolve(this.categories.find((c) => c.id === where.id) ?? null),
+    create: ({ data }: any) => {
       const row = { id: `c-${++this.seq}`, ...data };
       this.categories.push(row);
-      return row;
+      return Promise.resolve(row);
     },
-    update: async ({ where, data }: any) => {
+    update: ({ where, data }: any) => {
       const row = this.categories.find((c) => c.id === where.id);
       Object.assign(row, data);
-      return row;
+      return Promise.resolve(row);
     },
-    delete: async ({ where }: any) => {
+    delete: ({ where }: any) => {
       const idx = this.categories.findIndex((c) => c.id === where.id);
-      return this.categories.splice(idx, 1)[0];
+      return Promise.resolve(this.categories.splice(idx, 1)[0]);
     },
   };
 
   transaction = {
-    updateMany: async ({ where, data }: any) => {
+    updateMany: ({ where, data }: any) => {
       this.transactions
         .filter(
           (t) => t.userId === where.userId && t.categoryId === where.categoryId,
         )
         .forEach((t) => Object.assign(t, data));
+      return Promise.resolve();
     },
   };
 
   budget = {
-    deleteMany: async ({ where }: any) => {
+    deleteMany: ({ where }: any) => {
       this.budgets = this.budgets.filter(
         (b) =>
           !(b.userId === where.userId && b.categoryId === where.categoryId),
       );
+      return Promise.resolve();
     },
   };
 
-  $transaction = async (cb: any) => cb();
+  $transaction = (cb: any) => Promise.resolve(cb());
 }
 
 describe('Categories (integration)', () => {

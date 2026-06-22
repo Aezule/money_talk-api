@@ -152,6 +152,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   ) {
     if (!doc) return null;
     const { _id: _ignored, ...plain } = doc as any;
+    void _ignored; // Explicitly ignore - used for destructuring to remove _id
     if (!select) return plain;
     const result: Record<string, any> = {};
     for (const [field, enabled] of Object.entries(select)) {
