@@ -51,7 +51,7 @@ jobs:
       - name: Build de l'image
         run: docker build -t money-talks-api:ci .
       - name: Rapport Trivy (HIGH+CRITICAL, non bloquant)
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.23.1
         with:
           image-ref: money-talks-api:ci
           scanners: vuln
@@ -59,7 +59,7 @@ jobs:
           format: table
           exit-code: "0"
       - name: Gate Trivy — échec sur CVE CRITICAL corrigeable
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.23.1
         with:
           image-ref: money-talks-api:ci
           scanners: vuln
