@@ -22,7 +22,7 @@ describe('BudgetsService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    service = new BudgetsService(prisma as any);
+    service = new BudgetsService(prisma);
   });
 
   describe('findAll', () => {
@@ -55,7 +55,10 @@ describe('BudgetsService', () => {
     });
 
     it('rejects a category owned by another user', async () => {
-      prisma.category.findUnique.mockResolvedValue({ id: 'c1', userId: 'other' });
+      prisma.category.findUnique.mockResolvedValue({
+        id: 'c1',
+        userId: 'other',
+      });
 
       await expect(
         service.create('u1', { categoryId: 'c1', amount: 10 }),
@@ -128,7 +131,9 @@ describe('BudgetsService', () => {
 
       await service.delete('u1', 'b1');
 
-      expect(prisma.budget.delete).toHaveBeenCalledWith({ where: { id: 'b1' } });
+      expect(prisma.budget.delete).toHaveBeenCalledWith({
+        where: { id: 'b1' },
+      });
     });
   });
 });

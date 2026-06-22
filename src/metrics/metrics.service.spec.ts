@@ -17,7 +17,7 @@ describe('MetricsService', () => {
     expect(output).toContain('app="money-talks-api"');
   });
 
-  it('incrémente le compteur et l\'histogramme HTTP', async () => {
+  it("incrémente le compteur et l'histogramme HTTP", async () => {
     service.observeHttpRequest('GET', '/budgets', 200, 0.123);
     service.observeHttpRequest('GET', '/budgets', 200, 0.2);
 
@@ -31,7 +31,7 @@ describe('MetricsService', () => {
     expect(output).toContain('route="/budgets"');
   });
 
-  it('renvoie le content-type d\'exposition Prometheus', () => {
+  it("renvoie le content-type d'exposition Prometheus", () => {
     expect(service.contentType()).toContain('text/plain');
   });
 });

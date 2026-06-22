@@ -22,7 +22,7 @@ describe('ForecastsService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    service = new ForecastsService(prisma as any);
+    service = new ForecastsService(prisma);
   });
 
   describe('create', () => {
@@ -41,7 +41,10 @@ describe('ForecastsService', () => {
     });
 
     it('rejects a category owned by another user', async () => {
-      prisma.category.findUnique.mockResolvedValue({ id: 'c1', userId: 'other' });
+      prisma.category.findUnique.mockResolvedValue({
+        id: 'c1',
+        userId: 'other',
+      });
 
       await expect(
         service.create('u1', { amount: 100, categoryId: 'c1' }),
@@ -75,7 +78,9 @@ describe('ForecastsService', () => {
 
       await service.create('u1', { label: 'Misc', amount: 50, type: 'income' });
 
-      expect(prisma.forecastLine.create.mock.calls[0][0].data.categoryId).toBeNull();
+      expect(
+        prisma.forecastLine.create.mock.calls[0][0].data.categoryId,
+      ).toBeNull();
       expect(prisma.category.findUnique).not.toHaveBeenCalled();
     });
   });
@@ -90,7 +95,10 @@ describe('ForecastsService', () => {
     });
 
     it('throws when the line belongs to another user', async () => {
-      prisma.forecastLine.findUnique.mockResolvedValue({ id: 'f1', userId: 'other' });
+      prisma.forecastLine.findUnique.mockResolvedValue({
+        id: 'f1',
+        userId: 'other',
+      });
 
       await expect(
         service.update('u1', 'f1', { label: 'x' }),
@@ -98,7 +106,10 @@ describe('ForecastsService', () => {
     });
 
     it('updates only the provided fields', async () => {
-      prisma.forecastLine.findUnique.mockResolvedValue({ id: 'f1', userId: 'u1' });
+      prisma.forecastLine.findUnique.mockResolvedValue({
+        id: 'f1',
+        userId: 'u1',
+      });
       prisma.forecastLine.update.mockResolvedValue({ id: 'f1', label: 'New' });
 
       await service.update('u1', 'f1', { label: 'New' });
@@ -110,7 +121,10 @@ describe('ForecastsService', () => {
 
   describe('delete', () => {
     it('throws when the line belongs to another user', async () => {
-      prisma.forecastLine.findUnique.mockResolvedValue({ id: 'f1', userId: 'other' });
+      prisma.forecastLine.findUnique.mockResolvedValue({
+        id: 'f1',
+        userId: 'other',
+      });
 
       await expect(service.delete('u1', 'f1')).rejects.toBeInstanceOf(
         UnauthorizedException,
@@ -118,7 +132,10 @@ describe('ForecastsService', () => {
     });
 
     it('deletes the line when owned', async () => {
-      prisma.forecastLine.findUnique.mockResolvedValue({ id: 'f1', userId: 'u1' });
+      prisma.forecastLine.findUnique.mockResolvedValue({
+        id: 'f1',
+        userId: 'u1',
+      });
       prisma.forecastLine.delete.mockResolvedValue({ id: 'f1' });
 
       await service.delete('u1', 'f1');

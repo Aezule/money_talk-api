@@ -65,14 +65,19 @@ describe('Budgets (integration)', () => {
       .overrideGuard(JwtAuthGuard)
       .useValue({
         canActivate: (ctx: any) => {
-          ctx.switchToHttp().getRequest().user = { sub: TEST_USER, id: TEST_USER };
+          ctx.switchToHttp().getRequest().user = {
+            sub: TEST_USER,
+            id: TEST_USER,
+          };
           return true;
         },
       })
       .compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
   });
 

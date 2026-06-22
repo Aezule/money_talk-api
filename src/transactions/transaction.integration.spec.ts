@@ -89,7 +89,9 @@ describe('Transactions (integration)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
   });
 
@@ -141,7 +143,11 @@ describe('Transactions (integration)', () => {
 
   it('GET /transactions returns only the authenticated user transactions', async () => {
     prisma.transactions.push({ id: 't-seed', userId: TEST_USER, amount: 5 });
-    prisma.transactions.push({ id: 't-foreign', userId: OTHER_USER, amount: 9 });
+    prisma.transactions.push({
+      id: 't-foreign',
+      userId: OTHER_USER,
+      amount: 9,
+    });
 
     const res = await request(app.getHttpServer())
       .get('/transactions')
@@ -201,7 +207,11 @@ describe('Transactions (integration)', () => {
   });
 
   it('PUT /transactions/:id returns 404 for a transaction owned by another user', async () => {
-    prisma.transactions.push({ id: 't-foreign', userId: OTHER_USER, amount: 10 });
+    prisma.transactions.push({
+      id: 't-foreign',
+      userId: OTHER_USER,
+      amount: 10,
+    });
 
     await request(app.getHttpServer())
       .put('/transactions/t-foreign')

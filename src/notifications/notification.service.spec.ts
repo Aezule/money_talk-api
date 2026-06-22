@@ -38,7 +38,13 @@ describe('NotificationService', () => {
 
     it('persists a budget_exceeded notification when spending is over the budget', async () => {
       prisma.budget.findMany.mockResolvedValue([
-        { id: 'b1', userId: 'u1', categoryId: 'c1', amount: 100, period: 'monthly' },
+        {
+          id: 'b1',
+          userId: 'u1',
+          categoryId: 'c1',
+          amount: 100,
+          period: 'monthly',
+        },
       ]);
       prisma.transaction.aggregate.mockResolvedValue({ _sum: { amount: 150 } });
 
@@ -69,7 +75,9 @@ describe('NotificationService', () => {
         (call: any) => call[0].data,
       );
       expect(created.some((d: any) => d.type === 'budget_alert')).toBe(true);
-      expect(created.some((d: any) => d.type === 'budget_exceeded')).toBe(false);
+      expect(created.some((d: any) => d.type === 'budget_exceeded')).toBe(
+        false,
+      );
     });
 
     it('does not alert when spending is below the threshold', async () => {

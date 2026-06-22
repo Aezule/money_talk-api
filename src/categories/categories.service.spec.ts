@@ -32,14 +32,14 @@ describe('CategoriesService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    service = new CategoriesService(prisma as any);
+    service = new CategoriesService(prisma);
   });
 
   describe('create', () => {
     it('requires a non-empty name', async () => {
-      await expect(service.create('u1', { name: '   ' })).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(
+        service.create('u1', { name: '   ' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
 
     it('rejects a duplicate name (case-insensitive)', async () => {
@@ -51,7 +51,10 @@ describe('CategoriesService', () => {
     });
 
     it('rejects a parent category owned by another user', async () => {
-      prisma.category.findUnique.mockResolvedValue({ id: 'p1', userId: 'other' });
+      prisma.category.findUnique.mockResolvedValue({
+        id: 'p1',
+        userId: 'other',
+      });
 
       await expect(
         service.create('u1', { name: 'Sub', parentCategoryId: 'p1' }),

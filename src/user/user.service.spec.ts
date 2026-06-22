@@ -32,7 +32,7 @@ describe('UserService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    service = new UserService(prisma as any);
+    service = new UserService(prisma);
   });
 
   describe('find', () => {
@@ -101,7 +101,9 @@ describe('UserService', () => {
 
       const updateArg = prisma.utilisateur.update.mock.calls[0][0];
       expect(updateArg.data.password).not.toBe('brand-new');
-      expect(await bcrypt.compare('brand-new', updateArg.data.password)).toBe(true);
+      expect(await bcrypt.compare('brand-new', updateArg.data.password)).toBe(
+        true,
+      );
       expect(result).toEqual({ message: 'Password updated successfully' });
     });
   });
@@ -117,7 +119,10 @@ describe('UserService', () => {
 
     it('cascades deletions inside a transaction', async () => {
       prisma.utilisateur.findUnique.mockResolvedValue({ id: 'u1' });
-      prisma.transaction.findMany.mockResolvedValue([{ id: 't1' }, { id: 't2' }]);
+      prisma.transaction.findMany.mockResolvedValue([
+        { id: 't1' },
+        { id: 't2' },
+      ]);
 
       const result = await service.delete('u1');
 

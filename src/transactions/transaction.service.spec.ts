@@ -26,7 +26,7 @@ describe('TransactionService', () => {
     notifications = {
       checkBudgetForCategory: jest.fn<any>().mockResolvedValue(undefined),
     };
-    service = new TransactionService(prisma as any, notifications as any);
+    service = new TransactionService(prisma, notifications as any);
   });
 
   describe('findAll', () => {
@@ -51,7 +51,10 @@ describe('TransactionService', () => {
     });
 
     it('drops a categoryId that belongs to another user', async () => {
-      prisma.category.findUnique.mockResolvedValue({ id: 'c1', userId: 'other' });
+      prisma.category.findUnique.mockResolvedValue({
+        id: 'c1',
+        userId: 'other',
+      });
       prisma.transaction.create.mockResolvedValue({ id: 't1' });
 
       await service.createTransaction('u1', { amount: 10, categoryId: 'c1' });
@@ -62,7 +65,10 @@ describe('TransactionService', () => {
 
     it('keeps an owned categoryId and triggers the budget check', async () => {
       prisma.category.findUnique.mockResolvedValue({ id: 'c1', userId: 'u1' });
-      prisma.transaction.create.mockResolvedValue({ id: 't1', categoryId: 'c1' });
+      prisma.transaction.create.mockResolvedValue({
+        id: 't1',
+        categoryId: 'c1',
+      });
 
       await service.createTransaction('u1', { amount: 10, categoryId: 'c1' });
 
@@ -86,7 +92,10 @@ describe('TransactionService', () => {
     });
 
     it('deletes the transaction when owned', async () => {
-      prisma.transaction.findUnique.mockResolvedValue({ id: 't1', userId: 'u1' });
+      prisma.transaction.findUnique.mockResolvedValue({
+        id: 't1',
+        userId: 'u1',
+      });
       prisma.transaction.delete.mockResolvedValue({ id: 't1' });
 
       await service.deleteTransaction('u1', 't1');
@@ -100,9 +109,27 @@ describe('TransactionService', () => {
   describe('findRecurring', () => {
     it('deduplicates recurring transactions by signature', async () => {
       prisma.transaction.findMany.mockResolvedValue([
-        { id: '1', type: 'expense', categoryId: 'c1', amount: 10, description: 'rent' },
-        { id: '2', type: 'expense', categoryId: 'c1', amount: 10, description: 'rent' },
-        { id: '3', type: 'expense', categoryId: 'c2', amount: 5, description: 'gym' },
+        {
+          id: '1',
+          type: 'expense',
+          categoryId: 'c1',
+          amount: 10,
+          description: 'rent',
+        },
+        {
+          id: '2',
+          type: 'expense',
+          categoryId: 'c1',
+          amount: 10,
+          description: 'rent',
+        },
+        {
+          id: '3',
+          type: 'expense',
+          categoryId: 'c2',
+          amount: 5,
+          description: 'gym',
+        },
       ]);
 
       const result = await service.findRecurring('u1');
