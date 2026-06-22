@@ -52,7 +52,7 @@ jobs:
         run: docker build -t money-talks-api:ci .
       - name: Rapport Trivy (HIGH+CRITICAL, non bloquant)
         run: |
-          docker run --rm aquasecurity/trivy:latest image --severity HIGH,CRITICAL --format table money-talks-api:ci || true
+          docker run --rm ghcr.io/aquasecurity/trivy:latest image --severity HIGH,CRITICAL --format table money-talks-api:ci || true
       - name: Gate Trivy — échec sur CVE CRITICAL corrigeable
         run: |
-          docker run --rm aquasecurity/trivy:latest image --severity CRITICAL --ignore-unfixed --format table money-talks-api:ci
+          docker run --rm ghcr.io/aquasecurity/trivy:latest image --severity CRITICAL --ignore-unfixed --format table money-talks-api:ci
