@@ -50,11 +50,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build de l'image
         run: docker build -t money-talks-api:ci .
-      - name: Save Docker image
-        run: docker save money-talks-api:ci -o money-talks-api.tar
       - name: Rapport Trivy (HIGH+CRITICAL, non bloquant)
         run: |
-          docker run --rm -v "$(pwd):/src" ghcr.io/aquasecurity/trivy:latest image --severity HIGH,CRITICAL --format table /src/money-talks-api.tar || true
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/aquasecurity/trivy:latest image --severity HIGH,CRITICAL --format table money-talks-api:ci || true
       - name: Gate Trivy — échec sur CVE CRITICAL corrigeable
         run: |
-          docker run --rm -v "$(pwd):/src" ghcr.io/aquasecurity/trivy:latest image --severity CRITICAL --ignore-unfixed --format table /src/money-talks-api.tar
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/aquasecurity/trivy:latest image --severity CRITICAL --ignore-unfixed --format table money-talks-api:ci
