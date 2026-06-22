@@ -34,7 +34,7 @@ export class CategoriesService {
       }
       if (parent.userId !== userId) {
         throw new UnauthorizedException(
-          'Parent category does not belong to authenticated user',
+          'Parent category does not belong to authenticated user test',
         );
       }
     }
