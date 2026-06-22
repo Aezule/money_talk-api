@@ -47,6 +47,8 @@ describe('Metrics (integration)', () => {
     const res = await request(app.getHttpServer()).get('/metrics').expect(200);
 
     expect(res.text).toContain('route="/ping"');
-    expect(res.text).toMatch(/http_requests_total\{[^}]*route="\/ping"[^}]*\} 1/);
+    expect(res.text).toMatch(
+      /http_requests_total\{[^}]*route="\/ping"[^}]*\} 1/,
+    );
   });
 });

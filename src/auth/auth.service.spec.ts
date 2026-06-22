@@ -27,20 +27,21 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    jwt = { sign: jest.fn<any>().mockReturnValue('signed.jwt.token'), verify: jest.fn<any>() };
+    jwt = {
+      sign: jest.fn<any>().mockReturnValue('signed.jwt.token'),
+      verify: jest.fn<any>(),
+    };
     email = { sendResetPasswordLink: jest.fn<any>() };
     config = { get: jest.fn<any>().mockReturnValue('secret') };
-    service = new AuthService(
-      prisma as any,
-      jwt as any,
-      email as any,
-      config as any,
-    );
+    service = new AuthService(prisma, jwt as any, email, config as any);
   });
 
   describe('createUser', () => {
     it('throws ConflictException when the email is already registered', async () => {
-      prisma.utilisateur.findUnique.mockResolvedValue({ id: '1', email: 'a@a.com' });
+      prisma.utilisateur.findUnique.mockResolvedValue({
+        id: '1',
+        email: 'a@a.com',
+      });
 
       await expect(
         service.createUser('a@a.com', 'pw', 'A', 'B'),

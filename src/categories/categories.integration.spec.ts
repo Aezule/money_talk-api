@@ -50,7 +50,9 @@ class InMemoryPrisma {
   transaction = {
     updateMany: async ({ where, data }: any) => {
       this.transactions
-        .filter((t) => t.userId === where.userId && t.categoryId === where.categoryId)
+        .filter(
+          (t) => t.userId === where.userId && t.categoryId === where.categoryId,
+        )
         .forEach((t) => Object.assign(t, data));
     },
   };
@@ -58,7 +60,8 @@ class InMemoryPrisma {
   budget = {
     deleteMany: async ({ where }: any) => {
       this.budgets = this.budgets.filter(
-        (b) => !(b.userId === where.userId && b.categoryId === where.categoryId),
+        (b) =>
+          !(b.userId === where.userId && b.categoryId === where.categoryId),
       );
     },
   };
@@ -94,7 +97,9 @@ describe('Categories (integration)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
   });
 
@@ -187,11 +192,13 @@ describe('Categories (integration)', () => {
       userId: TEST_USER,
     });
     prisma.budgets.push({ id: 'b1', userId: TEST_USER, categoryId: 'c-del' });
-    prisma.transactions.push({ id: 't1', userId: TEST_USER, categoryId: 'c-del' });
+    prisma.transactions.push({
+      id: 't1',
+      userId: TEST_USER,
+      categoryId: 'c-del',
+    });
 
-    await request(app.getHttpServer())
-      .delete('/categories/c-del')
-      .expect(200);
+    await request(app.getHttpServer()).delete('/categories/c-del').expect(200);
 
     expect(prisma.categories).toHaveLength(0);
     expect(prisma.budgets).toHaveLength(0);

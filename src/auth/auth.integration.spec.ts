@@ -57,7 +57,8 @@ class InMemoryPrisma {
   };
 
   refreshToken = {
-    findUnique: async ({ where }: any) => this.matchOne(this.refreshTokens, where),
+    findUnique: async ({ where }: any) =>
+      this.matchOne(this.refreshTokens, where),
     create: async ({ data }: any) => {
       const row = { id: `rt-${++this.seq}`, revoked: false, ...data };
       this.refreshTokens.push(row);
@@ -100,7 +101,9 @@ describe('Auth (integration)', () => {
 
     app = moduleFixture.createNestApplication();
     app.use(cookieParser());
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
   });
 
