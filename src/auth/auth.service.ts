@@ -186,6 +186,7 @@ export class AuthService {
     }
 
     const { password: _password, ...safeUser } = user;
+    void _password; // Explicitly ignore - used for destructuring to remove password
     return this.toPublicUser(safeUser);
   }
 

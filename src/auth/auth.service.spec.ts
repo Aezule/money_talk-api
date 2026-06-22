@@ -51,12 +51,14 @@ describe('AuthService', () => {
 
     it('hashes the password and returns a public user with an access token', async () => {
       prisma.utilisateur.findUnique.mockResolvedValue(null);
-      prisma.utilisateur.create.mockImplementation(async ({ data }: any) => ({
-        id: data.id,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-      }));
+      prisma.utilisateur.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({
+          id: data.id,
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+        }),
+      );
 
       const result = await service.createUser('new@a.com', 'pw', 'A', 'B');
 

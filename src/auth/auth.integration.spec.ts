@@ -40,34 +40,38 @@ class InMemoryPrisma {
   }
 
   utilisateur = {
-    findUnique: async ({ where, select }: any) =>
-      this.project(this.matchOne(this.utilisateurs, where), select),
-    findFirst: async ({ where, select }: any) =>
-      this.project(this.matchOne(this.utilisateurs, where), select),
-    create: async ({ data, select }: any) => {
+    findUnique: ({ where, select }: any) =>
+      Promise.resolve(
+        this.project(this.matchOne(this.utilisateurs, where), select),
+      ),
+    findFirst: ({ where, select }: any) =>
+      Promise.resolve(
+        this.project(this.matchOne(this.utilisateurs, where), select),
+      ),
+    create: ({ data, select }: any) => {
       const row = { ...data };
       this.utilisateurs.push(row);
-      return this.project(row, select);
+      return Promise.resolve(this.project(row, select));
     },
-    update: async ({ where, data }: any) => {
+    update: ({ where, data }: any) => {
       const row = this.matchOne(this.utilisateurs, where);
       Object.assign(row, data);
-      return row;
+      return Promise.resolve(row);
     },
   };
 
   refreshToken = {
-    findUnique: async ({ where }: any) =>
-      this.matchOne(this.refreshTokens, where),
-    create: async ({ data }: any) => {
+    findUnique: ({ where }: any) =>
+      Promise.resolve(this.matchOne(this.refreshTokens, where)),
+    create: ({ data }: any) => {
       const row = { id: `rt-${++this.seq}`, revoked: false, ...data };
       this.refreshTokens.push(row);
-      return row;
+      return Promise.resolve(row);
     },
-    update: async ({ where, data }: any) => {
+    update: ({ where, data }: any) => {
       const row = this.matchOne(this.refreshTokens, where);
       Object.assign(row, data);
-      return row;
+      return Promise.resolve(row);
     },
   };
 }
