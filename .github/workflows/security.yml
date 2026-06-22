@@ -1,0 +1,68 @@
+name: Security
+
+# Lot Sécurité (Léo) : scans automatiques à chaque push/PR.
+# Gates (bloquants) : aucun secret, aucune vulnérabilité CRITICAL en prod,
+# aucune CVE CRITICAL corrigeable dans l'image. Les high/moderate sont
+# rapportées (non bloquantes) — voir SECURITY.md pour le backlog de remédiation.
+
+# Workflow réutilisable : appelé comme étage du pipeline principal (build.yml).
+# Pas de trigger push/PR direct -> pas de double exécution.
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  dependencies:
+    name: Dépendances (npm audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Rapport complet (non bloquant)
+        run: npm audit || true
+      - name: Gate — échec si vulnérabilité CRITICAL en production
+        run: npm audit --omit=dev --audit-level=critical
+
+  secrets:
+    name: Secrets (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # historique complet pour scanner tous les commits
+      # CLI gitleaks via Docker (gratuit, sans licence) — l'action officielle
+      # gitleaks-action@v2 exige une licence payante pour les organisations.
+      - name: gitleaks (détection de secrets)
+        run: |
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest \
+            detect --source=/repo --config=/repo/.gitleaks.toml --redact --verbose
+
+  image:
+    name: Image Docker (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build de l'image
+        run: docker build -t money-talks-api:ci .
+      - name: Rapport Trivy (HIGH+CRITICAL, non bloquant)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: money-talks-api:ci
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          format: table
+          exit-code: "0"
+      - name: Gate Trivy — échec sur CVE CRITICAL corrigeable
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: money-talks-api:ci
+          scanners: vuln
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"

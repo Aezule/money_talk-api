@@ -1,0 +1,24 @@
+# Configuration gitleaks du projet (détection de secrets).
+# Utilisée automatiquement par le hook pre-commit et la CI sécurité.
+title = "Money Talks — gitleaks"
+
+[extend]
+# Repart des règles par défaut de gitleaks (clés API, tokens, etc.).
+useDefault = true
+
+[allowlist]
+description = "Faux positifs connus"
+# Token factice du template NestJS présent dans un ancien README (badge CircleCI),
+# détecté dans l'historique git — ce n'est PAS un secret réel.
+regexes = [
+  '''abc123def456''',
+]
+# Commit historique contenant le faux positif ci-dessus.
+commits = [
+  "6437eed73087280d12529266d8e4a57b01196bc0",
+]
+# Le .env n'est jamais commité (cf .gitignore) ; le .sample ne contient que des
+# placeholders "change-me".
+paths = [
+  '''\.env\.sample$''',
+]

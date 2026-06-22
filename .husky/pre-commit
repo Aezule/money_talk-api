@@ -1,1 +1,11 @@
+# Secrets : empêche de committer un secret (scan des changements indexés).
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+  echo "🔒 [pre-commit] gitleaks — détection de secrets…"
+  MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd):/repo" zricethezav/gitleaks:latest \
+    protect --staged --source=/repo --config=/repo/.gitleaks.toml --redact
+else
+  echo "⚠️  [pre-commit] Docker indisponible — scan gitleaks ignoré (vérifié en CI)."
+fi
+
+# Tests : la suite Jest complète doit passer.
 npm test
