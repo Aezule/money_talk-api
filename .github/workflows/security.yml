@@ -1,12 +1,6 @@
 name: Security
 
-# Lot Sécurité (Léo) : scans automatiques à chaque push/PR.
-# Gates (bloquants) : aucun secret, aucune vulnérabilité CRITICAL en prod,
-# aucune CVE CRITICAL corrigeable dans l'image. Les high/moderate sont
-# rapportées (non bloquantes) — voir SECURITY.md pour le backlog de remédiation.
 
-# Workflow réutilisable : appelé comme étage du pipeline principal (build.yml).
-# Pas de trigger push/PR direct -> pas de double exécution.
 on:
   workflow_call:
 
@@ -35,9 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # historique complet pour scanner tous les commits
-      # CLI gitleaks via Docker (gratuit, sans licence) — l'action officielle
-      # gitleaks-action@v2 exige une licence payante pour les organisations.
+          fetch-depth: 0
       - name: gitleaks (détection de secrets)
         run: |
           docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest \
