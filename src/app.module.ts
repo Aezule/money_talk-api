@@ -20,7 +20,7 @@ import { MetricsModule } from './metrics/metrics.module.js';
     LoggerModule.forRoot({
       pinoHttp: {
         level: process.env.LOG_LEVEL ?? 'info',
-        // Ne jamais logger les secrets transitant dans les en-têtes :
+        // Ne jamais logger les secrets transitant dans les en-têtes test:
         // - requête : Authorization (Bearer) et Cookie (refreshToken)
         // - réponse : Set-Cookie (refreshToken + accessToken JWT)
         redact: [
